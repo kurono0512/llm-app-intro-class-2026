@@ -57,30 +57,31 @@ def chat(request: ChatRequest):
     # 送られてきた履歴を確かめる。
     question = history[-1]
     # TODO: 履歴の3つの確認を完成させる。下のコメントを外し、仮の501エラーの行を消す。
-    # if question['role'] != 'user':
-        # raise HTTPException(status_code=400, detail='最後は質問（user）にしてください。')
-    # if len(question['content']) > 500:
-        # raise HTTPException(status_code=400, detail='質問は500文字以内で入力してください。')
-    # if len(history) > MAX_TURNS * 2 - 1:
-        # raise HTTPException(status_code=400, detail=f'質問は{MAX_TURNS}回までです。会話をリセットしてください。')
-    raise HTTPException(status_code=501, detail='TODO: main.py の chat() で、履歴の確認を完成させる')
-
+    if question['role'] != 'user':
+        raise HTTPException(status_code=400, detail='最後は質問（user）にしてください。')
+    if len(question['content']) > 500:
+        raise HTTPException(status_code=400, detail='質問は500文字以内で入力してください。')
+    if len(history) > MAX_TURNS * 2 - 1:
+        raise HTTPException(status_code=400, detail=f'質問は{MAX_TURNS}回までです。会話をリセットしてください。')
     try:
         result = ask_with_history(history, MODEL, INSTRUCTIONS)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error))
     except APITimeoutError:
-        raise HTTPException(status_code=504, detail='APIの応答が遅れています。時間をおいて試してください。')
+        raise HTTPException(
+            status_code=504, detail='APIの応答が遅れています。時間をおいて試してください。')
     except RateLimitError:
         raise HTTPException(status_code=429, detail='APIの利用制限です。利用枠を確認してください。')
     except APIError:
         # エラーの全文には内部の情報が含まれることがあるので、画面には決まった文だけを返す。
-        raise HTTPException(status_code=502, detail='API呼び出しに失敗しました。キー・モデル・利用枠を確認してください。')
+        raise HTTPException(
+            status_code=502, detail='API呼び出しに失敗しました。キー・モデル・利用枠を確認してください。')
     return result
 
 
 # 画面（static/ のHTML・CSS・JavaScript）を配信する。APIの定義より後に書く。
-app.mount('/', StaticFiles(directory=BASE_DIR / 'static', html=True), name='static')
+app.mount('/', StaticFiles(directory=BASE_DIR /
+          'static', html=True), name='static')
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)
