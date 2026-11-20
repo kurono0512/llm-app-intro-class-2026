@@ -139,7 +139,6 @@ cursor.executemany('INSERT OR IGNORE INTO tasks (id, task, done) VALUES (?, ?, ?
 ## 実習1：関数の選び方を観察する（15分）
 
 ```bash
-cd sample-app/progress-app
 python main.py
 ```
 
@@ -168,7 +167,7 @@ python main.py
 
 | 質問 | 関数名 | 引数 | 表の行（id） | 回答の件数・id |
 |---|---|---|---|---|
-| まだ終わっていない作業は？ | | | | |
+| まだ終わっていない作業は？ | get_tasks | ({"status":"todo"}) | 5, 6, 7 | 3 |
 
 回答の文と表で、件数とidが一致しているかも見ておきます。
 
